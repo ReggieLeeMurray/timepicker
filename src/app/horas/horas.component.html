@@ -1,0 +1,84 @@
+<div class="card" style="align-items: center; width: 30%">
+  <div class="card-body">
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Lunes</nz-form-label>
+      <td>
+        <input
+          type="time"
+          [(ngModel)]="timea"
+          (ngModelChange)="horasLunI($event)"
+          id="LuI"
+          step="900"
+          class="form-control"
+        />
+      </td>
+      <td>
+        <input
+          type="time"
+          [(ngModel)]="timeb"
+          (ngModelChange)="horasLunO($event)"
+          id="LuO"
+          step="900"
+          class="form-control"
+        />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Martes</nz-form-label>
+      <td>
+        <input type="time" id="MaI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="MaO" step="900" class="form-control" />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Miércoles</nz-form-label>
+      <td>
+        <input type="time" id="MiI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="MiO" step="900" class="form-control" />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Jueves</nz-form-label>
+      <td>
+        <input type="time" id="JuI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="JuO" step="900" class="form-control" />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Viernes</nz-form-label>
+      <td>
+        <input type="time" id="ViI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="ViO" step="900" class="form-control" />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Sábado</nz-form-label>
+      <td>
+        <input type="time" id="SaI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="SaO" step="900" class="form-control" />
+      </td>
+    </tr>
+    <tr>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Domingo</nz-form-label>
+      <td>
+        <input type="time" id="DoI" step="900" class="form-control" />
+      </td>
+      <td>
+        <input type="time" id="DoO" step="900" class="form-control" />
+      </td>
+    </tr>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="calculo()">
+    Calcular
+  </button>
+</div>
