@@ -29,24 +29,7 @@ export class HorasComponent implements OnInit {
   timea: Date | null = null;
   timeb: Date | null = null;
 
-  constructor(private fb: FormBuilder) {
-    this.horasForm = this.fb.group({
-      luIControl: ['', Validators.required],
-      luOControl: ['', Validators.required],
-      maIControl: ['', Validators.required],
-      maOControl: ['', Validators.required],
-      miIControl: ['', Validators.required],
-      miOControl: ['', Validators.required],
-      juIControl: ['', Validators.required],
-      juOControl: ['', Validators.required],
-      viIControl: ['', Validators.required],
-      viOControl: ['', Validators.required],
-      saIControl: ['', Validators.required],
-      saOControl: ['', Validators.required],
-      doIControl: ['', Validators.required],
-      doOControl: ['', Validators.required],
-    });
-  }
+  constructor() {}
 
   ngOnInit(): void {}
 
