@@ -1,6 +1,6 @@
 import { Time } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import * as moment from 'moment';
 
 moment.locale('es');
