@@ -16,7 +16,8 @@ import { IconsProviderModule } from './icons-provider.module';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzFormModule } from 'ng-zorro-antd/form';
-
+import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 registerLocaleData(en);
 
 @NgModule({
@@ -33,6 +34,8 @@ registerLocaleData(en);
     NzMenuModule,
     NzFormModule,
     ReactiveFormsModule,
+    NzTimePickerModule,
+    NzSelectModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent],

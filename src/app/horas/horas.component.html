@@ -1,105 +1,347 @@
 <div
   class="card"
-  style="align-items: center; width: 30%; margin: auto; margin-top: 5%"
+  style="align-items: center; width: 40%; margin: auto; margin-top: 5%"
 >
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired style="margin-top: 5%"
-      >Lunes</nz-form-label
-    >
-    <td>
-      <input
-        type="time"
-        [(ngModel)]="timea"
-        (ngModelChange)="horasLunI($event)"
-        step="900"
-        class="form-control"
-      />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input
-        type="time"
-        [(ngModel)]="timeb"
-        (ngModelChange)="horasLunO($event)"
-        step="900"
-        class="form-control"
-      />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Martes</nz-form-label>
-    <td>
-      <input type="time" id="MaI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="MaO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Miércoles</nz-form-label>
-    <td>
-      <input type="time" id="MiI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="MiO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Jueves</nz-form-label>
-    <td>
-      <input type="time" id="JuI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="JuO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Viernes</nz-form-label>
-    <td>
-      <input type="time" id="ViI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="ViO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Sábado</nz-form-label>
-    <td>
-      <input type="time" id="SaI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="SaO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <tr>
-    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Domingo</nz-form-label>
-    <td>
-      <input type="time" id="DoI" step="900" class="form-control" />
-      <div class="form-text">Hora de Entrada</div>
-    </td>
-    <td>
-      <input type="time" id="DoO" step="900" class="form-control" />
-      <div class="form-text">Hora de Salida</div>
-    </td>
-  </tr>
-  <button
-    type="button"
-    class="btn btn-primary"
-    (click)="calculo()"
-    [disabled]="horasForm.invalid"
-    style="margin-bottom: 5%; margin-top: 3%"
-  >
-    Calcular
-  </button>
+  <div class="card-body">
+    <div>
+      <h2 style="text-align: center">Control de Asistencia del colaborador</h2>
+    </div>
+    <form [formGroup]="horasForm">
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired>Lunes</nz-form-label>
+        <td>
+          <input
+            type="time"
+            formControlName="luIControl"
+            (ngModelChange)="horasLuI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="luOControl"
+            (ngModelChange)="horasLuO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="lunesSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired>Martes</nz-form-label>
+        <td>
+          <input
+            type="time"
+            formControlName="maIControl"
+            (ngModelChange)="horasMaI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="maOControl"
+            (ngModelChange)="horasMaO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="martesSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired
+          >Miércoles</nz-form-label
+        >
+        <td>
+          <input
+            type="time"
+            formControlName="miIControl"
+            (ngModelChange)="horasMiI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="miOControl"
+            (ngModelChange)="horasMiO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="miercolesSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired>Jueves</nz-form-label>
+        <td>
+          <input
+            type="time"
+            formControlName="juIControl"
+            (ngModelChange)="horasJuI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="juOControl"
+            (ngModelChange)="horasJuO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="juevesSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired
+          >Viernes</nz-form-label
+        >
+        <td>
+          <input
+            type="time"
+            formControlName="viIControl"
+            (ngModelChange)="horasViI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="viOControl"
+            (ngModelChange)="horasViO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="viernesSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired>Sábado</nz-form-label>
+        <td>
+          <input
+            type="time"
+            formControlName="saIControl"
+            (ngModelChange)="horasSaI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="saOControl"
+            (ngModelChange)="horasSaO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="sabadoSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <tr>
+        <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired
+          >Domingo</nz-form-label
+        >
+        <td>
+          <input
+            type="time"
+            formControlName="doIControl"
+            (ngModelChange)="horasDoI($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Entrada</div>
+        </td>
+        <td>
+          <input
+            type="time"
+            formControlName="doOControl"
+            (ngModelChange)="horasDoO($event)"
+            step="900"
+            class="form-control"
+          />
+          <div class="form-text">Hora de Salida</div>
+        </td>
+        <td>
+          <form [formGroup]="descriForm">
+            <select class="form-select" formControlName="domingoSelect">
+              <option label="Ninguna" value=""></option>
+              <optgroup label="Con Permiso">
+                <option value="feriado">Feriado</option>
+                <option value="incapacidadpub">Incapacidad Pública</option>
+                <option value="incapacidadpriv">Incapacidad Privada</option>
+                <option value="septimo">Séptimo dia / Libre</option>
+                <option value="vacacion">Vacación</option>
+              </optgroup>
+              <optgroup label="Sin Permiso">
+                <option value="falta">Falta</option>
+                <option value="abandono">Abandono / Renuncia / Despido</option>
+              </optgroup>
+            </select>
+          </form>
+          <div class="form-text">Observación (opcional)</div>
+        </td>
+      </tr>
+      <table style="margin: 0 auto">
+        <tr>
+          <td>
+            <!-- [disabled]="horasForm.invalid" -->
+            <button
+              type="button"
+              class="btn btn-success"
+              (click)="calcular()"
+              style="margin-bottom: 5%; margin-top: 5%"
+            >
+              Calcular
+            </button>
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="limpiar()"
+              style="margin-bottom: 5%; margin-top: 5%"
+            >
+              Limpiar
+            </button>
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="cancelar()"
+              style="margin-bottom: 5%; margin-top: 5%"
+            >
+              Cancelar
+            </button>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
 </div>

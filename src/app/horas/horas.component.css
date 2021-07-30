@@ -1,4 +1,20 @@
 td {
-  padding-bottom: 5%;
+  padding-top: 5%;
   padding-left: 15px;
+}
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+select {
+  color: gray;
+}
+option {
+  color: black;
+}
+
+optgroup[label] {
+  color: grey;
+  font-style: inherit;
+  font-weight: 300;
+  text-shadow: none;
 }
