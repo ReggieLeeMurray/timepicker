@@ -188,22 +188,10 @@ export class HorasComponent implements OnInit {
     // nocturnaI = moment(19, 'HH:mm a');
     // nocturnaO = moment(5, 'HH:mm a');
 
-    
-
-  }
-
-  jornada(desde:moment.Moment, hasta:moment.Moment) {
-    if (
-      (desde >= this.diurnaI &&
-        desde <= this.diurnaI &&
-        hasta <= this.diurnaO) ||
-      (desde >= this.mixtaI &&
-        desde <= this.diurnaI &&
-        hasta <= this.diurnaO)
-    ) {
+    if (lunesDesde >= this.diurnaI && lunesHasta <= this.diurnaO) {
       if (hoursLunes > 8) {
         var extras = hoursLunes - 8;
-        console.log('extras diurnas ' + extras + ' total ' + hoursLunes);
+        console.log('extras diurnas ' + extras);
       } else {
         console.log('total ' + hoursLunes);
       }
@@ -214,13 +202,13 @@ export class HorasComponent implements OnInit {
     ) {
       if (hoursLunes > 7) {
         var extras = hoursLunes - 7;
-        console.log('extras mixtas ' + extras + ' total ' + hoursLunes);
+        console.log('extras mixtas ' + extras);
       } else {
-        console.log('horas trabajadas mixta ' + hoursLunes);
+        console.log('total ' + hoursLunes);
       }
     } else if (lunesDesde >= this.nocturnaI && lunesHasta <= this.nocturnaO) {
       if (hoursLunes > 6) {
-        console.log('extras nocturnas ' + extras + ' total ' + hoursLunes);
+        console.log('extras nocturnas ' + extras);
       } else {
         console.log('total ' + hoursLunes);
       }
@@ -236,8 +224,13 @@ export class HorasComponent implements OnInit {
         console.log('total ' + hoursLunes);
       } else {
         var extras = hoursLunes - 6;
-        console.log('extras diurnas ' + extras + ' total ' + hoursLunes);
+        console.log('extras diurnas ' + extras);
       }
+    }
+  }
+
+  jornada() {
+    console.log('test');
   }
   horasLuI(value: Time): void {
     this.luI = value;
