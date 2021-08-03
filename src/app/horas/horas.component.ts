@@ -27,6 +27,14 @@ export class HorasComponent implements OnInit {
   saO: Time;
   doI: Time;
   doO: Time;
+  diurnaI = moment(5, 'HH:mm a');
+  diurnaO = moment(19, 'HH:mm a');
+  mixtaI = moment(12, 'HH:mm a');
+  mixtaO1 = moment(20, 'HH:mm a');
+  mixtaO2 = moment(21, 'HH:mm a');
+  nocturnaI = moment(19, 'HH:mm a');
+  nocturnaO = moment(5, 'HH:mm a');
+  mixtaT = moment(20, 'HH:mm a');
 
   constructor(private fb: FormBuilder) {
     this.horasForm = this.fb.group({
@@ -86,20 +94,20 @@ export class HorasComponent implements OnInit {
   }
 
   calcular() {
-    const lunesDesde = moment(this.luI, 'HH:mm a');
-    const lunesHasta = moment(this.luO, 'HH:mm a');
-    const martesDesde = moment(this.maI, 'HH:mm a');
-    const martesHasta = moment(this.maO, 'HH:mm a');
-    const miercolesDesde = moment(this.miI, 'HH:mm a');
-    const miercolesHasta = moment(this.miO, 'HH:mm a');
-    const juevesDesde = moment(this.juI, 'HH:mm a');
-    const juevesHasta = moment(this.juO, 'HH:mm a');
-    const viernesDesde = moment(this.viI, 'HH:mm a');
-    const viernesHasta = moment(this.viO, 'HH:mm a');
-    const sabadoDesde = moment(this.saI, 'HH:mm a');
-    const sabadoHasta = moment(this.saO, 'HH:mm a');
-    const domingoDesde = moment(this.doI, 'HH:mm a');
-    const domingoHasta = moment(this.doO, 'HH:mm a');
+    var lunesDesde = moment(this.luI, 'HH:mm a');
+    var lunesHasta = moment(this.luO, 'HH:mm a');
+    var martesDesde = moment(this.maI, 'HH:mm a');
+    var martesHasta = moment(this.maO, 'HH:mm a');
+    var miercolesDesde = moment(this.miI, 'HH:mm a');
+    var miercolesHasta = moment(this.miO, 'HH:mm a');
+    var juevesDesde = moment(this.juI, 'HH:mm a');
+    var juevesHasta = moment(this.juO, 'HH:mm a');
+    var viernesDesde = moment(this.viI, 'HH:mm a');
+    var viernesHasta = moment(this.viO, 'HH:mm a');
+    var sabadoDesde = moment(this.saI, 'HH:mm a');
+    var sabadoHasta = moment(this.saO, 'HH:mm a');
+    var domingoDesde = moment(this.doI, 'HH:mm a');
+    var domingoHasta = moment(this.doO, 'HH:mm a');
 
     if (lunesDesde > lunesHasta) {
       var difLunes = moment
@@ -146,7 +154,6 @@ export class HorasComponent implements OnInit {
       var difViernes = moment.duration(viernesHasta.diff(viernesDesde));
       var hoursViernes = difViernes.asHours();
     }
-
     if (sabadoDesde > sabadoHasta) {
       var difSabado = moment
         .duration(sabadoHasta.diff(sabadoDesde))
@@ -165,7 +172,6 @@ export class HorasComponent implements OnInit {
       var difDomingo = moment.duration(domingoHasta.diff(domingoDesde));
       var hoursDomingo = difDomingo.asHours();
     }
-
     console.log('Horas trabajadas día Lunes: ' + hoursLunes);
     console.log('Horas trabajadas día Martes: ' + hoursMartes);
     console.log('Horas trabajadas día Miercoles: ' + hoursMiercoles);
@@ -173,14 +179,66 @@ export class HorasComponent implements OnInit {
     console.log('Horas trabajadas día Viernes: ' + hoursViernes);
     console.log('Horas trabajadas día Sabado: ' + hoursSabado);
     console.log('Horas trabajadas día Domingo: ' + hoursDomingo);
-  }
-  selectedValue = 'lucy';
 
-  listOfGroupOption = [
-    { label: 'Jack', value: 'jack', groupLabel: 'Manager' },
-    { label: 'Lucy', value: 'lucy', groupLabel: 'Manager' },
-    { label: 'Tom', value: 'tom', groupLabel: 'Engineer' },
-  ];
+    // diurnaI = moment(5, 'HH:mm a');
+    // diurnaO = moment(19, 'HH:mm a');
+    // mixtaI = moment(12, 'HH:mm a');
+    // mixtaO2 = moment(21, 'HH:mm a');
+    // mixtaO1 = moment(20, 'HH:mm a');
+    // nocturnaI = moment(19, 'HH:mm a');
+    // nocturnaO = moment(5, 'HH:mm a');
+
+    
+
+  }
+
+  jornada(desde:moment.Moment, hasta:moment.Moment) {
+    if (
+      (desde >= this.diurnaI &&
+        desde <= this.diurnaI &&
+        hasta <= this.diurnaO) ||
+      (desde >= this.mixtaI &&
+        desde <= this.diurnaI &&
+        hasta <= this.diurnaO)
+    ) {
+      if (hoursLunes > 8) {
+        var extras = hoursLunes - 8;
+        console.log('extras diurnas ' + extras + ' total ' + hoursLunes);
+      } else {
+        console.log('total ' + hoursLunes);
+      }
+    } else if (
+      lunesDesde >= this.mixtaI &&
+      lunesHasta >= this.nocturnaI &&
+      lunesHasta <= this.mixtaO2
+    ) {
+      if (hoursLunes > 7) {
+        var extras = hoursLunes - 7;
+        console.log('extras mixtas ' + extras + ' total ' + hoursLunes);
+      } else {
+        console.log('horas trabajadas mixta ' + hoursLunes);
+      }
+    } else if (lunesDesde >= this.nocturnaI && lunesHasta <= this.nocturnaO) {
+      if (hoursLunes > 6) {
+        console.log('extras nocturnas ' + extras + ' total ' + hoursLunes);
+      } else {
+        console.log('total ' + hoursLunes);
+      }
+    } else if (
+      lunesDesde >= this.nocturnaI &&
+      lunesHasta >= this.diurnaI &&
+      lunesHasta <= this.diurnaO
+    ) {
+      var dur = moment.duration(lunesDesde.diff(this.diurnaI)).asHours();
+      var dur2 = moment.duration(lunesHasta.diff(this.diurnaI)).asHours();
+      console.log(dur, dur2);
+      if (dur2 == 6) {
+        console.log('total ' + hoursLunes);
+      } else {
+        var extras = hoursLunes - 6;
+        console.log('extras diurnas ' + extras + ' total ' + hoursLunes);
+      }
+  }
   horasLuI(value: Time): void {
     this.luI = value;
     console.log(value);
@@ -237,17 +295,95 @@ export class HorasComponent implements OnInit {
     this.doO = value;
     console.log(value);
   }
-  changelabel(value) {
+  onChangeLunes(value) {
     console.log(value);
-    switch (value) {
-      case '1':
-        return this.horasForm.get('role').setValue('Admin');
-      case '2':
-        return this.horasForm.get('role').setValue('Digitador');
-      case '3':
-        return this.horasForm.get('role').setValue('Usuario');
-      case '0':
-        break;
+    if (this.descriForm.get('lunesSelect').value == value && value != '') {
+      this.horasForm.get('luIControl').disable();
+      this.horasForm.get('luOControl').disable();
+      this.horasForm.get('luIControl').setValue(0);
+      this.horasForm.get('luOControl').setValue(0);
+      console.log(this.luI, this.luO);
+    } else {
+      this.horasForm.get('luIControl').enable();
+      this.horasForm.get('luOControl').enable();
+    }
+  }
+  onChangeMartes(value) {
+    console.log(value);
+    if (this.descriForm.get('martesSelect').value == value && value != '') {
+      this.horasForm.get('maIControl').disable();
+      this.horasForm.get('maOControl').disable();
+      this.horasForm.get('maIControl').setValue(0);
+      this.horasForm.get('maOControl').setValue(0);
+      console.log(this.maI, this.maO);
+    } else {
+      this.horasForm.get('maIControl').enable();
+      this.horasForm.get('maOControl').enable();
+    }
+  }
+  onChangeMiercoles(value) {
+    console.log(value);
+    if (this.descriForm.get('miercolesSelect').value == value && value != '') {
+      this.horasForm.get('miIControl').disable();
+      this.horasForm.get('miOControl').disable();
+      this.horasForm.get('miIControl').setValue(0);
+      this.horasForm.get('miOControl').setValue(0);
+      console.log(this.miI, this.miO);
+    } else {
+      this.horasForm.get('miIControl').enable();
+      this.horasForm.get('miOControl').enable();
+    }
+  }
+  onChangeJueves(value) {
+    console.log(value);
+    if (this.descriForm.get('juevesSelect').value == value && value != '') {
+      this.horasForm.get('juIControl').disable();
+      this.horasForm.get('juOControl').disable();
+      this.horasForm.get('juIControl').setValue(0);
+      this.horasForm.get('juOControl').setValue(0);
+      console.log(this.juI, this.juO);
+    } else {
+      this.horasForm.get('juIControl').enable();
+      this.horasForm.get('juOControl').enable();
+    }
+  }
+  onChangeViernes(value) {
+    console.log(value);
+    if (this.descriForm.get('viernesSelect').value == value && value != '') {
+      this.horasForm.get('viIControl').disable();
+      this.horasForm.get('viOControl').disable();
+      this.horasForm.get('viIControl').setValue(0);
+      this.horasForm.get('viOControl').setValue(0);
+      console.log(this.viI, this.viO);
+    } else {
+      this.horasForm.get('viIControl').enable();
+      this.horasForm.get('viOControl').enable();
+    }
+  }
+  onChangeSabado(value) {
+    console.log(value);
+    if (this.descriForm.get('sabadoSelect').value == value && value != '') {
+      this.horasForm.get('saIControl').disable();
+      this.horasForm.get('saOControl').disable();
+      this.horasForm.get('saIControl').setValue(0);
+      this.horasForm.get('saOControl').setValue(0);
+      console.log(this.saI, this.saO);
+    } else {
+      this.horasForm.get('saIControl').enable();
+      this.horasForm.get('saOControl').enable();
+    }
+  }
+  onChangeDomingo(value) {
+    console.log(value);
+    if (this.descriForm.get('domingoSelect').value == value && value != '') {
+      this.horasForm.get('doIControl').disable();
+      this.horasForm.get('doOControl').disable();
+      this.horasForm.get('doIControl').setValue(0);
+      this.horasForm.get('doOControl').setValue(0);
+      console.log(this.doI, this.doO);
+    } else {
+      this.horasForm.get('doIControl').enable();
+      this.horasForm.get('doOControl').enable();
     }
   }
 }

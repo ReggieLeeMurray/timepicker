@@ -4,7 +4,7 @@
 >
   <div class="card-body">
     <div>
-      <h2 style="text-align: center">Control de Asistencia del colaborador</h2>
+      <h2 style="text-align: center">Control de asistencia del colaborador</h2>
     </div>
     <form [formGroup]="horasForm">
       <tr>
@@ -31,7 +31,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="lunesSelect">
+            <select
+              class="form-select"
+              formControlName="lunesSelect"
+              (ngModelChange)="onChangeLunes($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -73,7 +77,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="martesSelect">
+            <select
+              class="form-select"
+              formControlName="martesSelect"
+              (ngModelChange)="onChangeMartes($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -117,7 +125,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="miercolesSelect">
+            <select
+              class="form-select"
+              formControlName="miercolesSelect"
+              (ngModelChange)="onChangeMiercoles($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -159,7 +171,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="juevesSelect">
+            <select
+              class="form-select"
+              formControlName="juevesSelect"
+              (ngModelChange)="onChangeJueves($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -203,7 +219,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="viernesSelect">
+            <select
+              class="form-select"
+              formControlName="viernesSelect"
+              (ngModelChange)="onChangeViernes($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -245,7 +265,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="sabadoSelect">
+            <select
+              class="form-select"
+              formControlName="sabadoSelect"
+              (ngModelChange)="onChangeSabado($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -289,7 +313,11 @@
         </td>
         <td>
           <form [formGroup]="descriForm">
-            <select class="form-select" formControlName="domingoSelect">
+            <select
+              class="form-select"
+              formControlName="domingoSelect"
+              (ngModelChange)="onChangeDomingo($event)"
+            >
               <option label="Ninguna" value=""></option>
               <optgroup label="Con Permiso">
                 <option value="feriado">Feriado</option>
@@ -345,3 +373,11 @@
     </form>
   </div>
 </div>
+<button
+  type="button"
+  class="btn btn-success"
+  (click)="jornada()"
+  style="margin-bottom: 5%; margin-top: 5%"
+>
+  jornada
+</button>
