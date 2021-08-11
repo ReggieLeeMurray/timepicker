@@ -27,14 +27,20 @@ export class HorasComponent implements OnInit {
   saO: Time;
   doI: Time;
   doO: Time;
+  hrsJornadaDiurna = 8;
+  hrsJornadaNocturna = 6;
+  hrsJornadaMixta = 7;
   diurnaI = moment(5, 'HH:mm a');
   diurnaO = moment(19, 'HH:mm a');
-  mixtaI = moment(12, 'HH:mm a');
-  mixtaO1 = moment(20, 'HH:mm a');
-  mixtaO2 = moment(21, 'HH:mm a');
   nocturnaI = moment(19, 'HH:mm a');
   nocturnaO = moment(5, 'HH:mm a');
-  mixtaT = moment(20, 'HH:mm a');
+  mixtaIa = moment(13, 'HH:mm a');
+  mixtaIb = moment(14, 'HH:mm a');
+  mixtaIc = moment(15, 'HH:mm a');
+  mixtaOa = moment(20, 'HH:mm a');
+  mixtaOb = moment(21, 'HH:mm a');
+  mixtaOc = moment(22, 'HH:mm a');
+  reset = moment(24, 'HH:mm a');
 
   constructor(private fb: FormBuilder) {
     this.horasForm = this.fb.group({
@@ -180,58 +186,139 @@ export class HorasComponent implements OnInit {
     console.log('Horas trabajadas día Sabado: ' + hoursSabado);
     console.log('Horas trabajadas día Domingo: ' + hoursDomingo);
 
-    // diurnaI = moment(5, 'HH:mm a');
-    // diurnaO = moment(19, 'HH:mm a');
-    // mixtaI = moment(12, 'HH:mm a');
-    // mixtaO2 = moment(21, 'HH:mm a');
-    // mixtaO1 = moment(20, 'HH:mm a');
-    // nocturnaI = moment(19, 'HH:mm a');
-    // nocturnaO = moment(5, 'HH:mm a');
-
-    if (lunesDesde >= this.diurnaI && lunesHasta <= this.diurnaO) {
-      if (hoursLunes > 8) {
-        var extras = hoursLunes - 8;
-        console.log('extras diurnas ' + extras);
-      } else {
-        console.log('total ' + hoursLunes);
+    if (lunesDesde >= this.diurnaI && lunesHasta <= this.diurnaO && lunesHasta > this.diurnaI && lunesHasta > lunesDesde) {
+      if (hoursLunes >= this.hrsJornadaDiurna) {
+        var extras = hoursLunes - this.hrsJornadaDiurna;
+        console.log('jornada diurna '+'extras diurnas ' + extras);
+      } else if(hoursLunes < this.hrsJornadaDiurna){
+        console.log('jornada diurna no completo ' + hoursLunes);
       }
-    } else if (
-      lunesDesde >= this.mixtaI &&
-      lunesHasta >= this.nocturnaI &&
-      lunesHasta <= this.mixtaO2
-    ) {
-      if (hoursLunes > 7) {
-        var extras = hoursLunes - 7;
-        console.log('extras mixtas ' + extras);
-      } else {
-        console.log('total ' + hoursLunes);
+  } else if ((lunesDesde >= this.diurnaI && lunesDesde<=this.diurnaO) && (lunesHasta>this.nocturnaI || lunesHasta<=this.diurnaO) && (lunesHasta<lunesDesde)) {
+    var a = (moment.duration(this.diurnaO.diff(lunesDesde)).asHours());
+    var b = (moment.duration(lunesHasta.diff(this.diurnaI)).asHours());
+    if (b>0){
+      var sum=a+b
+      if (sum>=this.hrsJornadaDiurna){
+        var exd=sum-this.hrsJornadaDiurna
+        var exn=hoursLunes-sum
+        console.log("jornada diurna "+hoursLunes+" extras diurnas "+exd+" extras nocturnas "+exn)
+      }else{
+        var exn=hoursLunes-sum-this.hrsJornadaNocturna
+        console.log("jornada nocturna "+hoursLunes+" extras diurnas "+sum+" extras nocturnas "+exn)
       }
-    } else if (lunesDesde >= this.nocturnaI && lunesHasta <= this.nocturnaO) {
-      if (hoursLunes > 6) {
-        console.log('extras nocturnas ' + extras);
+    } else {
+      if (a>=this.hrsJornadaDiurna){
+        var exd=a-this.hrsJornadaDiurna
+        var exn=hoursLunes-a
+        console.log("jornada diurna "+hoursLunes+" extras diurnas "+exd+" extras nocturnas "+exn)
       } else {
-        console.log('total ' + hoursLunes);
+        var faltante=hoursLunes-a
+        if (faltante>=this.hrsJornadaNocturna){
+          var exn=hoursLunes-a-this.hrsJornadaNocturna
+          console.log("jornada nocturna "+hoursLunes+" extras diurnas "+a+" extras nocturnas "+exn)
+        } else if(faltante<this.hrsJornadaNocturna){        
+          var exd=hoursLunes-this.hrsJornadaNocturna
+          console.log("jornada nocturna "+hoursLunes+" extras diurnas "+exd)
+        }
       }
-    } else if (
-      lunesDesde >= this.nocturnaI &&
-      lunesHasta >= this.diurnaI &&
-      lunesHasta <= this.diurnaO
-    ) {
-      var dur = moment.duration(lunesDesde.diff(this.diurnaI)).asHours();
-      var dur2 = moment.duration(lunesHasta.diff(this.diurnaI)).asHours();
-      console.log(dur, dur2);
-      if (dur2 == 6) {
-        console.log('total ' + hoursLunes);
+    }
+  } else if ((lunesDesde >= this.diurnaI && lunesDesde<=this.diurnaO) && (lunesHasta>this.nocturnaI && lunesHasta<=this.reset)) {
+    var a = (moment.duration(this.diurnaO.diff(lunesDesde)).asHours());
+    var b = (moment.duration(lunesHasta.diff(this.diurnaO)).asHours());
+    if (a>=this.hrsJornadaDiurna){
+        if(lunesHasta>this.nocturnaI && lunesHasta<=this.mixtaOc){
+        var exd=a-this.hrsJornadaDiurna
+        var exm = (moment.duration(lunesHasta.diff(this.diurnaO)).asHours());
+        console.log("jornada diurna "+hoursLunes+" extras diurnas "+exd+" extras mixtas "+exm)}
+        else if (lunesHasta>this.mixtaOc && lunesHasta<=this.reset){
+        var exd=a-this.hrsJornadaDiurna
+        var exn = (moment.duration(lunesHasta.diff(this.nocturnaI)).asHours());
+        console.log("jornada diurna "+hoursLunes+" extras diurnas "+exd+" extras nocturnas "+exn)}
+    } else if (a<this.hrsJornadaDiurna){
+      if(lunesHasta>this.nocturnaI && lunesHasta<=this.mixtaOc){
+        var exm=hoursLunes-this.hrsJornadaDiurna
+        console.log("jornada diurna "+hoursLunes+" extras mixtas "+exm)}
+        else if (lunesHasta>this.mixtaOc && lunesHasta<=this.reset){
+        var exn=hoursLunes-this.hrsJornadaDiurna
+        console.log("jornada diurna "+hoursLunes+" extras nocturnas "+exn)}
+    }
+  } else if ((lunesDesde >= this.nocturnaI || lunesDesde < this.nocturnaO) && (lunesHasta <= this.diurnaI || lunesHasta >= this.diurnaO)) {
+    if(hoursLunes>10){
+      if(lunesHasta>=this.diurnaO && lunesHasta<=this.mixtaOc){      
+        const exd=6
+        var exn = (moment.duration(this.diurnaI.diff(lunesDesde)).asHours());
+        var exm = (moment.duration(lunesHasta.diff(this.diurnaO)).asHours());
+        console.log("jornada diurna "+ hoursLunes+" extras diurnas "+exd+" extras nocturnas "+exn+" extras mixtas "+exm)
+      } else if (lunesHasta>this.mixtaOc && lunesHasta<this.reset){
+        const exd=6
+        var a = (moment.duration(this.diurnaI.diff(lunesDesde)).asHours());
+        var b = (moment.duration(lunesHasta.diff(this.nocturnaI)).asHours());
+        var exn=a+b
+        console.log("jornada diurna "+ hoursLunes+" extras diurnas "+exd+" extras nocturnas "+exn)
+      }} else if (hoursLunes >= this.hrsJornadaNocturna && hoursLunes<10) {
+        var extras = hoursLunes - this.hrsJornadaNocturna;
+        console.log('jornada nocturna '+'extras nocturnas ' + extras);
       } else {
-        var extras = hoursLunes - 6;
-        console.log('extras diurnas ' + extras);
+        console.log('jornada nocturna no completo ' + hoursLunes);
+      }
+  } else if (lunesDesde >= this.mixtaIa && lunesDesde <= this.mixtaIc && (lunesHasta <= this.diurnaI || lunesHasta >= this.diurnaO)) {
+      if (lunesHasta > this.mixtaOc || lunesHasta <= this.diurnaI) {
+        var jornada = (moment.duration(this.mixtaOc.diff(lunesDesde)).asHours());
+        var extras=jornada-this.hrsJornadaMixta
+        var hoursdif = (moment.duration(lunesHasta.diff(this.mixtaOc)).asHours());
+        if (hoursdif < 0) {
+          hoursdif = hoursdif + 24;
+          console.log('jornada mixta '+'extras mixtas ' + extras + ' extra nocturna ' + hoursdif);
+        } else {
+          console.log('jornada mixta '+'extras mixtas ' + extras + ' extra nocturna ' + hoursdif);
+        }
+      } else if (lunesHasta > this.diurnaO && lunesHasta <= this.mixtaOc) {
+        if(hoursLunes>=this.hrsJornadaMixta){
+          var exm=hoursLunes-this.hrsJornadaMixta
+          console.log('jornada mixta '+'extras mixtas ' + exm);
+        } else {
+          console.log('jornada diurna no completo ' + hoursLunes);
+        }
+      }
+  } else if (lunesDesde >= this.nocturnaI || (lunesDesde <= this.diurnaI && lunesHasta <= this.nocturnaI)) {
+      var hoursDiurna = (moment.duration(lunesHasta.diff(this.diurnaI)).asHours());
+      var hoursNocturna = hoursLunes - hoursDiurna;
+      if (hoursDiurna > hoursNocturna) {
+        console.log(hoursDiurna, hoursNocturna);
+        if (hoursLunes < this.hrsJornadaDiurna) {
+          console.log('jornada diurna no completo ' + hoursLunes);
+        } else if (hoursLunes >= this.hrsJornadaDiurna) {
+          if (hoursDiurna > this.hrsJornadaDiurna) {
+            var extra = hoursDiurna - this.hrsJornadaDiurna;
+            console.log('jornada diurna ' +hoursLunes +' extras diurnas ' +extra +' extra nocturna ' +hoursNocturna);
+          } else if (hoursDiurna < this.hrsJornadaDiurna) {
+            var completar = this.hrsJornadaDiurna - hoursDiurna;
+            var xnocturna = hoursNocturna - completar;
+            console.log('jornada diurna ' + hoursLunes + ' extra nocturna ' + xnocturna);
+          } else if (hoursDiurna == this.hrsJornadaDiurna) {
+            console.log('jornada diurna ' +hoursLunes +' extra nocturna ' +hoursNocturna);
+          }
+        }
+      } else {
+        console.log(hoursDiurna, hoursNocturna);
+        if (hoursLunes < this.hrsJornadaNocturna) {
+          console.log('jornada nocturna no completo ' + hoursLunes);
+        } else if (hoursLunes >= this.hrsJornadaNocturna) {
+          if (hoursNocturna > this.hrsJornadaNocturna) {
+            var extra = hoursNocturna - this.hrsJornadaNocturna;
+            console.log('jornada nocturna ' +hoursLunes +' extras nocturna ' +extra +' extra diurna ' +hoursDiurna);
+          } else if (hoursNocturna < this.hrsJornadaNocturna) {
+            var completar = this.hrsJornadaNocturna - hoursNocturna;
+            var xdiurna = hoursDiurna - completar;
+            console.log('jornada nocturna ' + hoursLunes + ' extra diurnas ' + xdiurna);
+          } else if (hoursNocturna == this.hrsJornadaNocturna) {
+            console.log('jornada nocturna ' + hoursLunes + ' extra diurna ' + hoursDiurna);
+          }
+        }
       }
     }
   }
 
-  jornada() {
-    console.log('test');
-  }
   horasLuI(value: Time): void {
     this.luI = value;
     console.log(value);
