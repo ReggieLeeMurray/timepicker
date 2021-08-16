@@ -6,7 +6,7 @@
     <div>
       <h2 style="text-align: center">Control de asistencia del colaborador</h2>
     </div>
-    <nz-modal [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+    <nz-modal id="normal" [(nzVisible)]="isVisible" nzTitle="The first Modal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
       <ng-container *nzModalContent>
         <p>Content one</p>
         <p>Content two</p>
@@ -14,6 +14,7 @@
       </ng-container>
     </nz-modal>
     <form [formGroup]="horasForm">
+
       <tr>
         <nz-form-label [nzSm]="24" [nzXs]="24" nzRequired>Lunes</nz-form-label>
         <td>

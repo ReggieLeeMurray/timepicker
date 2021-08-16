@@ -12,25 +12,29 @@ moment.locale('es');
   styleUrls: ['./horas.component.css'],
 })
 export class HorasComponent implements OnInit {
+  //forms
   horasForm: FormGroup;
   descriForm: FormGroup;
-  lunesDesde: moment.Moment;
-  lunesHasta: moment.Moment;
-  martesDesde: moment.Moment;
-  martesHasta: moment.Moment;
-  miercolesDesde: moment.Moment;
-  miercolesHasta: moment.Moment;
-  juevesDesde: moment.Moment;
-  juevesHasta: moment.Moment;
-  viernesDesde: moment.Moment;
-  viernesHasta: moment.Moment;
-  sabadoDesde: moment.Moment;
-  sabadoHasta: moment.Moment;
-  domingoDesde: moment.Moment;
-  domingoHasta: moment.Moment;
+  //entradas y salidas
+  luI: Time;
+  luO: Time;
+  maI: Time;
+  maO: Time;
+  miI: Time;
+  miO: Time;
+  juI: Time;
+  juO: Time;
+  viI: Time;
+  viO: Time;
+  saI: Time;
+  saO: Time;
+  doI: Time;
+  doO: Time;
+  //duracion de jornada
   hrsJornadaDiurna = 8;
   hrsJornadaNocturna = 6;
   hrsJornadaMixta = 7;
+  //horarios de las jornadas
   diurnaI = moment(5, 'HH:mm a');
   diurnaO = moment(19, 'HH:mm a');
   nocturnaI = moment(19, 'HH:mm a');
@@ -42,21 +46,32 @@ export class HorasComponent implements OnInit {
   mixtaOb = moment(21, 'HH:mm a');
   mixtaOc = moment(22, 'HH:mm a');
   reset = moment(24, 'HH:mm a');
+  //modal
   isVisible = false;
+  //horas trabajadas x dia de la semana
   hours;
-  trabajadasNormales;
-  trabajadasDiurnas;
-  trabajadasNocturnas;
-  trabajadasMixtas;
-  ExtrasDiurnas;
-  ExtrasNocturas;
-  ExtrasMixtras;
-  valorNormales;
-  valorDiurnas;
-  valorNocturnas;
-  valorMixtas;
+  hoursLunes;
+  hoursMartes;
+  hoursMiercoles;
+  hoursJueves;
+  hoursViernes;
+  hoursSabado;
+  hoursDomingo;
+  //horas trabajadas
+  totalTrabNormales;
+  totalTrabDiurnas;
+  totalTrabNocturnas;
+  totalTrabMixtas;
+  totalExtrasDiurnas:number=0;
+  totalExtrasNocturas:number=0;
+  totalExtrasMixtras:number=0;
+  //precio por jornada
+  precioNormales;
+  precioDiurnas;
+  precioNocturnas;
+  precioMixtas;
 
-  constructor(private fb: FormBuilder,private modal: NzModalService) {
+  constructor(private fb: FormBuilder, private modal: NzModalService) {
     this.horasForm = this.fb.group({
       luIControl: ['', Validators.required],
       luOControl: ['', Validators.required],
@@ -83,9 +98,7 @@ export class HorasComponent implements OnInit {
       domingoSelect: ['', Validators.required],
     });
   }
-
   ngOnInit(): void {}
-
   limpiar() {
     this.horasForm.reset();
     this.descriForm.get('lunesSelect').setValue('');
@@ -99,11 +112,9 @@ export class HorasComponent implements OnInit {
   cancelar() {
     this.limpiar();
   }
-  horasSemana (entrada:moment.Moment, salida:moment.Moment) {
+  horasSemana(entrada: moment.Moment, salida: moment.Moment) {
     if (entrada > salida) {
-      var diferencia = moment
-        .duration(salida.diff(entrada))
-        .add(24, 'hours');
+      var diferencia = moment.duration(salida.diff(entrada)).add(24, 'hours');
       this.hours = diferencia.asHours();
     } else {
       diferencia = moment.duration(salida.diff(entrada));
@@ -111,154 +122,175 @@ export class HorasComponent implements OnInit {
     }
   }
   calcular() {
-    this.horasSemana(this.lunesDesde,this.lunesHasta)
-    console.log('Lunes: ' + this.hours);
-    this.horas(this.lunesDesde, this.lunesHasta, this.hours);
+    var lunesDesde = moment(this.luI, 'HH:mm a');
+    var lunesHasta = moment(this.luO, 'HH:mm a');
+    var martesDesde = moment(this.maI, 'HH:mm a');
+    var martesHasta = moment(this.maO, 'HH:mm a');
+    var miercolesDesde = moment(this.miI, 'HH:mm a');
+    var miercolesHasta = moment(this.miO, 'HH:mm a');
+    var juevesDesde = moment(this.juI, 'HH:mm a');
+    var juevesHasta = moment(this.juO, 'HH:mm a');
+    var viernesDesde = moment(this.viI, 'HH:mm a');
+    var viernesHasta = moment(this.viO, 'HH:mm a');
+    var sabadoDesde = moment(this.saI, 'HH:mm a');
+    var sabadoHasta = moment(this.saO, 'HH:mm a');
+    var domingoDesde = moment(this.doI, 'HH:mm a');
+    var domingoHasta = moment(this.doO, 'HH:mm a');
 
-    this.horasSemana(this.martesDesde,this.martesHasta)
-    console.log('Martes: ' + this.hours);
-    this.horas(this.martesDesde, this.martesHasta, this.hours);
+    this.horasSemana(lunesDesde, lunesHasta);
+    this.hoursLunes = this.hours;
+    console.log('Lunes: ' + this.hoursLunes);
+    this.horas(lunesDesde, lunesHasta, this.hoursLunes);
 
-    this.horasSemana(this.miercolesDesde,this.miercolesHasta)
-    console.log('Miercoles: ' + this.hours);
-    this.horas(this.miercolesDesde, this.miercolesHasta, this.hours);
+    this.horasSemana(martesDesde, martesHasta);
+    this.hoursMartes = this.hours;
+    console.log('Martes: ' + this.hoursMartes);
+    this.horas(martesDesde, martesHasta, this.hoursMartes);
 
-    this.horasSemana(this.juevesDesde,this.juevesHasta)
-    console.log('Jueves: ' + this.hours);
-    this.horas(this.juevesDesde, this.juevesHasta, this.hours);
+    this.horasSemana(miercolesDesde, miercolesHasta);
+    this.hoursMiercoles = this.hours;
+    console.log('Miercoles: ' + this.hoursMiercoles);
+    this.horas(miercolesDesde, miercolesHasta, this.hoursMiercoles);
 
-    this.horasSemana(this.viernesDesde,this.viernesHasta)
-    console.log('Viernes: ' + this.hours);
-    this.horas(this.viernesDesde, this.viernesHasta, this.hours);
+    this.horasSemana(juevesDesde, juevesHasta);
+    this.hoursJueves = this.hours;
+    console.log('Jueves: ' + this.hoursJueves);
+    this.horas(juevesDesde, juevesHasta, this.hoursJueves);
 
-    this.horasSemana(this.sabadoDesde,this.sabadoHasta)
-    console.log('Sabado: ' + this.hours);
-    this.horas(this.sabadoDesde, this.sabadoHasta, this.hours);
+    this.horasSemana(viernesDesde, viernesHasta);
+    this.hoursViernes = this.hours;
+    console.log('Viernes: ' + this.hoursViernes);
+    this.horas(viernesDesde, viernesHasta, this.hoursViernes);
 
-    this.horasSemana(this.domingoDesde,this.domingoHasta)
-    console.log('Domingo: ' + this.hours);
-    this.horas(this.domingoDesde, this.domingoHasta, this.hours);
+    this.horasSemana(sabadoDesde, sabadoHasta);
+    this.hoursSabado = this.hours;
+    console.log('Sabado: ' + this.hoursSabado);
+    this.horas(sabadoDesde, sabadoHasta, this.hoursSabado);
+
+    this.horasSemana(domingoDesde, domingoHasta);
+    this.hoursDomingo = this.hours;
+    console.log('Domingo: ' + this.hoursDomingo);
+    this.horas(domingoDesde, domingoHasta, this.hoursDomingo);
   }
   horas(entrada: moment.Moment, salida: moment.Moment, horas: number) {
+    var a:number=0, b:number=0, exd:number=0, exn:number=0, exm:number=0, sum:number=0, faltante:number=0, hoursdif:number=0, jornada:number=0, hoursDiurna:number=0, hoursNocturna:number=0, completar:number=0
+    
     if (entrada.isValid() && salida.isValid()) {
       if (entrada.isSame(salida)) {
         console.log('horas validas pero son iguales');
       } else {
         console.log('true');
-        if (entrada >= this.diurnaI && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada) {
+        if (entrada >= this.diurnaI && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada ) {
           if (horas >= this.hrsJornadaDiurna) {
-            var extras = horas - this.hrsJornadaDiurna;
-            console.log('jornada diurna ' + 'extras diurnas ' + extras);
+            exd = horas - this.hrsJornadaDiurna;
+            console.log('jornada diurna ' + ' extras diurnas ' + exd);
           } else if (horas < this.hrsJornadaDiurna) {
             console.log('jornada diurna no completo ' + horas);
           }
         } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && (salida > this.nocturnaI || salida <= this.diurnaO) && salida < entrada) {
-          var a = moment.duration(this.diurnaO.diff(entrada)).asHours();
-          var b = moment.duration(salida.diff(this.diurnaI)).asHours();
+          a = moment.duration(this.diurnaO.diff(entrada)).asHours();
+          b = moment.duration(salida.diff(this.diurnaI)).asHours();
           if (b > 0) {
-            var sum = a + b;
+            sum = a + b;
             if (sum >= this.hrsJornadaDiurna) {
-              var exd = sum - this.hrsJornadaDiurna;
-              var exn = horas - sum;
+              exd = sum - this.hrsJornadaDiurna;
+              exn = horas - sum;
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
             } else {
-              var exn = horas - sum - this.hrsJornadaNocturna;
-              console.log('jornada nocturna ' + horas + ' extras diurnas ' + sum + ' extras nocturnas ' + exn );
+              exn = horas - sum - this.hrsJornadaNocturna;
+              console.log('jornada nocturna ' + horas + ' extras diurnas ' + sum + ' extras nocturnas ' + exn);
             }
           } else {
             if (a >= this.hrsJornadaDiurna) {
-              var exd = a - this.hrsJornadaDiurna;
-              var exn = horas - a;
+              exd = a - this.hrsJornadaDiurna;
+              exn = horas - a;
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
             } else {
-              var faltante = horas - a;
+              faltante = horas - a; 
               if (faltante >= this.hrsJornadaNocturna) {
-                var exn = horas - a - this.hrsJornadaNocturna;
+                exn = horas - a - this.hrsJornadaNocturna;
                 console.log('jornada nocturna ' + horas + ' extras diurnas ' + a + ' extras nocturnas ' + exn);
               } else if (faltante < this.hrsJornadaNocturna) {
-                var exd = horas - this.hrsJornadaNocturna;
+                exd = horas - this.hrsJornadaNocturna;
                 console.log('jornada nocturna ' + horas + ' extras diurnas ' + exd);
               }
             }
           }
         } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && salida > this.nocturnaI && salida <= this.reset) {
-          var a = moment.duration(this.diurnaO.diff(entrada)).asHours();
-          var b = moment.duration(salida.diff(this.diurnaO)).asHours();
+          a = moment.duration(this.diurnaO.diff(entrada)).asHours();
+          b = moment.duration(salida.diff(this.diurnaO)).asHours();
           if (a >= this.hrsJornadaDiurna) {
             if (salida > this.nocturnaI && salida <= this.mixtaOc) {
-              var exd = a - this.hrsJornadaDiurna;
-              var exm = moment.duration(salida.diff(this.diurnaO)).asHours();
+              exd = a - this.hrsJornadaDiurna;
+              exm = moment.duration(salida.diff(this.diurnaO)).asHours();
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras mixtas ' + exm);
             } else if (salida > this.mixtaOc && salida <= this.reset) {
-              var exd = a - this.hrsJornadaDiurna;
-              var exn = moment.duration(salida.diff(this.nocturnaI)).asHours();
+              exd = a - this.hrsJornadaDiurna;
+              exn = moment.duration(salida.diff(this.nocturnaI)).asHours();
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
             }
           } else if (a < this.hrsJornadaDiurna) {
             if (salida > this.nocturnaI && salida <= this.mixtaOc) {
-              var exm = horas - this.hrsJornadaDiurna;
+              exm = horas - this.hrsJornadaDiurna;
               console.log('jornada diurna ' + horas + ' extras mixtas ' + exm);
             } else if (salida > this.mixtaOc && salida <= this.reset) {
-              var exn = horas - this.hrsJornadaDiurna;
-              console.log('jornada diurna ' + horas + ' extras nocturnas ' + exn);
+              exn = horas - this.hrsJornadaNocturna;
+              console.log('jornada nocturna ' + horas + ' extras nocturnas ' + exn);
             }
           }
-        } else if (
-          (entrada >= this.nocturnaI || entrada < this.nocturnaO) &&
-          (salida <= this.diurnaI || salida >= this.diurnaO)
-        ) {
+        } else if ((entrada >= this.nocturnaI || entrada < this.nocturnaO) && (salida <= this.diurnaI || salida >= this.diurnaO)) {
           if (horas > 10) {
             if (salida >= this.diurnaO && salida <= this.mixtaOc) {
-              const exd = 6;
-              var exn = moment.duration(this.diurnaI.diff(entrada)).asHours();
-              var exm = moment.duration(salida.diff(this.diurnaO)).asHours();
+              exd = 6;
+              exn = moment.duration(this.diurnaI.diff(entrada)).asHours();
+              exm = moment.duration(salida.diff(this.diurnaO)).asHours();
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn + ' extras mixtas ' + exm);
             } else if (salida > this.mixtaOc && salida < this.reset) {
-              const exd = 6;
-              var a = moment.duration(this.diurnaI.diff(entrada)).asHours();
-              var b = moment.duration(salida.diff(this.nocturnaI)).asHours();
-              var exn = a + b;
+              exd = 6;
+              a = moment.duration(this.diurnaI.diff(entrada)).asHours();
+              b = moment.duration(salida.diff(this.nocturnaI)).asHours();
+              exn = a + b;
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
             }
           } else if (horas >= this.hrsJornadaNocturna && horas < 10) {
-            var extras = horas - this.hrsJornadaNocturna;
-            console.log('jornada nocturna ' + 'extras nocturnas ' + extras);
+            exn = horas - this.hrsJornadaNocturna;
+            console.log('jornada nocturna ' + ' extras nocturnas ' + exn);
           } else {
             console.log('jornada nocturna no completo ' + horas);
           }
         } else if (entrada >= this.mixtaIa && entrada <= this.mixtaIc && (salida <= this.diurnaI || salida >= this.diurnaO)) {
           if (salida > this.mixtaOc || salida <= this.diurnaI) {
-            var jornada = moment.duration(this.mixtaOc.diff(entrada)).asHours();
-            var extras = jornada - this.hrsJornadaMixta;
-            var hoursdif = moment.duration(salida.diff(this.mixtaOc)).asHours();
+            jornada = moment.duration(this.mixtaOc.diff(entrada)).asHours();
+            exm = jornada - this.hrsJornadaMixta;
+            hoursdif = moment.duration(salida.diff(this.mixtaOc)).asHours();
             if (hoursdif < 0) {
               hoursdif = hoursdif + 24;
-              console.log('jornada mixta ' + 'extras mixtas ' + extras + ' extra nocturna ' + hoursdif);
+              console.log('jornada mixta ' + ' extras mixtas ' + exm + ' extra nocturna ' + hoursdif);
             } else {
-              console.log('jornada mixta ' + 'extras mixtas ' + extras + ' extra nocturna ' + hoursdif);
+              console.log('jornada mixta ' + ' extras mixtas ' + exm + ' extra nocturna ' + hoursdif);
             }
           } else if (salida > this.diurnaO && salida <= this.mixtaOc) {
             if (horas >= this.hrsJornadaMixta) {
-              var exm = horas - this.hrsJornadaMixta;
+              exm = horas - this.hrsJornadaMixta;
               console.log('jornada mixta ' + 'extras mixtas ' + exm);
             } else {
               console.log('jornada diurna no completo ' + horas);
             }
           }
         } else if (entrada >= this.nocturnaI || (entrada <= this.diurnaI && salida <= this.nocturnaI)) {
-          var hoursDiurna = moment.duration(salida.diff(this.diurnaI)).asHours();
-          var hoursNocturna = horas - hoursDiurna;
+          hoursDiurna = moment.duration(salida.diff(this.diurnaI)).asHours();
+          hoursNocturna = horas - hoursDiurna;
           if (hoursDiurna > hoursNocturna) {
             if (horas < this.hrsJornadaDiurna) {
               console.log('jornada diurna no completo ' + horas);
             } else if (horas >= this.hrsJornadaDiurna) {
               if (hoursDiurna > this.hrsJornadaDiurna) {
-                var extra = hoursDiurna - this.hrsJornadaDiurna;
-                console.log('jornada diurna ' + horas + ' extras diurnas ' + extra + ' extra nocturna ' + hoursNocturna);
+                exd = hoursDiurna - this.hrsJornadaDiurna;
+                console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extra nocturna ' + hoursNocturna);
               } else if (hoursDiurna < this.hrsJornadaDiurna) {
-                var completar = this.hrsJornadaDiurna - hoursDiurna;
-                var xnocturna = hoursNocturna - completar;
-                console.log('jornada diurna ' + horas + ' extra nocturna ' + xnocturna);
+                completar = this.hrsJornadaDiurna - hoursDiurna;
+                exn = hoursNocturna - completar;
+                console.log('jornada diurna ' + horas + ' extra nocturna ' + exn);
               } else if (hoursDiurna == this.hrsJornadaDiurna) {
                 console.log('jornada diurna ' + horas + ' extra nocturna ' + hoursNocturna);
               }
@@ -269,16 +301,14 @@ export class HorasComponent implements OnInit {
               console.log('jornada nocturna no completo ' + horas);
             } else if (horas >= this.hrsJornadaNocturna) {
               if (hoursNocturna > this.hrsJornadaNocturna) {
-                var extra = hoursNocturna - this.hrsJornadaNocturna;
-                console.log('jornada nocturna ' + horas + ' extras nocturna ' + extra + ' extra diurna ' + hoursDiurna);
+                exn = hoursNocturna - this.hrsJornadaNocturna;
+                console.log('jornada nocturna ' + horas + ' extras nocturna ' + exn + ' extra diurna ' + hoursDiurna);
               } else if (hoursNocturna < this.hrsJornadaNocturna) {
-                var completar = this.hrsJornadaNocturna - hoursNocturna;
-                var xdiurna = hoursDiurna - completar;
-                console.log('jornada nocturna ' + horas + ' extra diurnas ' + xdiurna);
+                completar = this.hrsJornadaNocturna - hoursNocturna;
+                exd = hoursDiurna - completar;
+                console.log('jornada nocturna ' + horas + ' extra diurnas ' + exd);
               } else if (hoursNocturna == this.hrsJornadaNocturna) {
-                console.log(
-                  'jornada nocturna ' + horas + ' extra diurna ' + hoursDiurna
-                );
+                console.log('jornada nocturna ' + horas + ' extra diurna ' + hoursDiurna);
               }
             }
           }
@@ -287,83 +317,107 @@ export class HorasComponent implements OnInit {
     } else {
       console.log('horas invalidas');
     }
+    // var a, b, exd, exn, exm, sum, faltante, hoursdif, jornada, hoursDiurna, hoursNocturna, completar;
+    // this.totalTrabNormales;
+    // this.totalTrabDiurnas;
+    // this.totalTrabNocturnas;
+    // this.totalTrabMixtas;
+    if(exd<0){
+      exd=0
+    }
+    if(exm<0){
+      exm=0
+    }
+    if(exn<0){
+      exn=0
+    }
+    this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd;
+    this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+    this.totalExtrasMixtras=this.totalExtrasMixtras+exm;
+    console.log(
+      // this.totalTrabNormales,
+      // this.totalTrabDiurnas,
+      // this.totalTrabNocturnas,
+      // this.totalTrabMixtas,
+      "extra diurnas ",this.totalExtrasDiurnas,
+      "extra nocturnas ",this.totalExtrasNocturas,
+      "extra mixtas ",this.totalExtrasMixtras)
   }
   showModal(): void {
     this.modal.confirm({
       nzTitle: 'CONFIRMACIÓN',
-      nzContent: '<b style="color: red;">¿Esta seguro de haber ingresado las horas correctas?</b>',
+      nzContent:
+        '<b style="color: red;">¿Esta seguro de haber ingresado las horas correctas?</b>',
       nzOkText: 'Yes',
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.calcular(),
       nzCancelText: 'No',
-      nzOnCancel: () => console.log('Cancel')
+      nzOnCancel: () => console.log('Cancel'),
     });
   }
-
   handleOk(): void {
     console.log('Button ok clicked!');
     this.isVisible = false;
   }
-
   handleCancel(): void {
     console.log('Button cancel clicked!');
     this.isVisible = false;
   }
-  horasLuI(value: moment.Moment): void {
-    this.lunesDesde = value;
+  horasLuI(value: Time): void {
+    this.luI = value;
     console.log(value);
   }
-  horasLuO(value: moment.Moment): void {
-    this.lunesHasta = value;
+  horasLuO(value: Time): void {
+    this.luO = value;
     console.log(value);
   }
-  horasMaI(value: moment.Moment): void {
-    this.martesDesde = value;
+  horasMaI(value: Time): void {
+    this.maI = value;
     console.log(value);
   }
-  horasMaO(value: moment.Moment): void {
-    this.martesHasta = value;
+  horasMaO(value: Time): void {
+    this.maO = value;
     console.log(value);
   }
-  horasMiI(value: moment.Moment): void {
-    this.miercolesDesde = value;
+  horasMiI(value: Time): void {
+    this.miI = value;
     console.log(value);
   }
-  horasMiO(value: moment.Moment): void {
-    this.miercolesHasta = value;
+  horasMiO(value: Time): void {
+    this.miO = value;
     console.log(value);
   }
-  horasJuI(value: moment.Moment): void {
-    this.juevesDesde = value;
+  horasJuI(value: Time): void {
+    this.juI = value;
     console.log(value);
   }
-  horasJuO(value: moment.Moment): void {
-    this.juevesHasta = value;
+  horasJuO(value: Time): void {
+    this.juO = value;
     console.log(value);
   }
-  horasViI(value: moment.Moment): void {
-    this.viernesDesde = value;
+  horasViI(value: Time): void {
+    this.viI = value;
     console.log(value);
   }
-  horasViO(value: moment.Moment): void {
-    this.viernesHasta = value;
+  horasViO(value: Time): void {
+    this.viO = value;
     console.log(value);
   }
-  horasSaI(value: moment.Moment): void {
-    this.sabadoDesde = value;
+  horasSaI(value: Time): void {
+    this.saI = value;
     console.log(value);
   }
-  horasSaO(value: moment.Moment): void {
-    this.sabadoHasta = value;
+  horasSaO(value: Time): void {
+    this.saO = value;
     console.log(value);
   }
-  horasDoI(value: moment.Moment): void {
-    this.domingoDesde = value;
+  horasDoI(value: Time): void {
+    this.doI = value;
     console.log(value);
   }
-  horasDoO(value: moment.Moment): void {
-    this.domingoHasta = value;
+  horasDoO(value: Time): void {
+    this.doO = value;
     console.log(value);
   }
   onChangeLunes(value) {
@@ -373,7 +427,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('luOControl').disable();
       this.horasForm.get('luIControl').setValue(0);
       this.horasForm.get('luOControl').setValue(0);
-      console.log(this.lunesDesde, this.lunesHasta);
+      console.log(this.luI, this.luO);
     } else {
       this.horasForm.get('luIControl').enable();
       this.horasForm.get('luOControl').enable();
@@ -386,7 +440,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('maOControl').disable();
       this.horasForm.get('maIControl').setValue(0);
       this.horasForm.get('maOControl').setValue(0);
-      console.log(this.martesDesde, this.martesHasta);
+      console.log(this.maI, this.maO);
     } else {
       this.horasForm.get('maIControl').enable();
       this.horasForm.get('maOControl').enable();
@@ -399,7 +453,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('miOControl').disable();
       this.horasForm.get('miIControl').setValue(0);
       this.horasForm.get('miOControl').setValue(0);
-      console.log(this.miercolesDesde, this.miercolesHasta);
+      console.log(this.miI, this.miO);
     } else {
       this.horasForm.get('miIControl').enable();
       this.horasForm.get('miOControl').enable();
@@ -412,7 +466,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('juOControl').disable();
       this.horasForm.get('juIControl').setValue(0);
       this.horasForm.get('juOControl').setValue(0);
-      console.log(this.juevesDesde, this.juevesHasta);
+      console.log(this.juI, this.juO);
     } else {
       this.horasForm.get('juIControl').enable();
       this.horasForm.get('juOControl').enable();
@@ -425,7 +479,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('viOControl').disable();
       this.horasForm.get('viIControl').setValue(0);
       this.horasForm.get('viOControl').setValue(0);
-      console.log(this.viernesDesde, this.viernesHasta);
+      console.log(this.viI, this.viO);
     } else {
       this.horasForm.get('viIControl').enable();
       this.horasForm.get('viOControl').enable();
@@ -438,7 +492,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('saOControl').disable();
       this.horasForm.get('saIControl').setValue(0);
       this.horasForm.get('saOControl').setValue(0);
-      console.log(this.sabadoDesde, this.sabadoHasta);
+      console.log(this.saI, this.saO);
     } else {
       this.horasForm.get('saIControl').enable();
       this.horasForm.get('saOControl').enable();
@@ -451,7 +505,7 @@ export class HorasComponent implements OnInit {
       this.horasForm.get('doOControl').disable();
       this.horasForm.get('doIControl').setValue(0);
       this.horasForm.get('doOControl').setValue(0);
-      console.log(this.domingoDesde, this.domingoHasta);
+      console.log(this.doI, this.doO);
     } else {
       this.horasForm.get('doIControl').enable();
       this.horasForm.get('doOControl').enable();
