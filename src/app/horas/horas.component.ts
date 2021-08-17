@@ -219,7 +219,7 @@ export class HorasComponent implements OnInit {
                 console.log('jornada nocturna ' + horas + ' extras diurnas ' + exd);
               }
             }
-          }
+          }//arreglar ciclo 6pm-11pm
          } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && salida > this.nocturnaI && salida <= this.reset) {
           a = moment.duration(this.diurnaO.diff(entrada)).asHours();
           b = moment.duration(salida.diff(this.diurnaO)).asHours();
