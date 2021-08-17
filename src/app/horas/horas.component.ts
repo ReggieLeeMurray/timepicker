@@ -173,20 +173,23 @@ export class HorasComponent implements OnInit {
     this.horas(domingoDesde, domingoHasta, this.hoursDomingo);
   }
   horas(entrada: moment.Moment, salida: moment.Moment, horas: number) {
-    var a:number=0, b:number=0, exd:number=0, exn:number=0, exm:number=0, sum:number=0, faltante:number=0, hoursdif:number=0, jornada:number=0, hoursDiurna:number=0, hoursNocturna:number=0, completar:number=0
+    var a:number=0, b:number=0, exd:number=0, exn:number=0, exm:number=0, sum:number=0, faltante:number=0, 
+    hoursdif:number=0, jornada:number=0, hoursDiurna:number=0, hoursNocturna:number=0, completar:number=0;
     
     if (entrada.isValid() && salida.isValid()) {
       if (entrada.isSame(salida)) {
         console.log('horas validas pero son iguales');
       } else {
         console.log('true');
-        if (entrada >= this.diurnaI && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada ) {
+        //ciclo jornada diurna con extras diurnas
+        if (entrada >= this.diurnaI && entrada < this.diurnaO && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada ) {
           if (horas >= this.hrsJornadaDiurna) {
             exd = horas - this.hrsJornadaDiurna;
             console.log('jornada diurna ' + ' extras diurnas ' + exd);
           } else if (horas < this.hrsJornadaDiurna) {
             console.log('jornada diurna no completo ' + horas);
           }
+          //ciclo jornada diurna con extras nocturnas y diurnas
         } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && (salida > this.nocturnaI || salida <= this.diurnaO) && salida < entrada) {
           a = moment.duration(this.diurnaO.diff(entrada)).asHours();
           b = moment.duration(salida.diff(this.diurnaI)).asHours();
@@ -206,6 +209,7 @@ export class HorasComponent implements OnInit {
               exn = horas - a;
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
             } else {
+              //arreglar 1pm-2am
               faltante = horas - a; 
               if (faltante >= this.hrsJornadaNocturna) {
                 exn = horas - a - this.hrsJornadaNocturna;
@@ -216,7 +220,7 @@ export class HorasComponent implements OnInit {
               }
             }
           }
-        } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && salida > this.nocturnaI && salida <= this.reset) {
+         } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && salida > this.nocturnaI && salida <= this.reset) {
           a = moment.duration(this.diurnaO.diff(entrada)).asHours();
           b = moment.duration(salida.diff(this.diurnaO)).asHours();
           if (a >= this.hrsJornadaDiurna) {
@@ -317,11 +321,6 @@ export class HorasComponent implements OnInit {
     } else {
       console.log('horas invalidas');
     }
-    // var a, b, exd, exn, exm, sum, faltante, hoursdif, jornada, hoursDiurna, hoursNocturna, completar;
-    // this.totalTrabNormales;
-    // this.totalTrabDiurnas;
-    // this.totalTrabNocturnas;
-    // this.totalTrabMixtas;
     if(exd<0){
       exd=0
     }
@@ -334,14 +333,7 @@ export class HorasComponent implements OnInit {
     this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd;
     this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
     this.totalExtrasMixtras=this.totalExtrasMixtras+exm;
-    console.log(
-      // this.totalTrabNormales,
-      // this.totalTrabDiurnas,
-      // this.totalTrabNocturnas,
-      // this.totalTrabMixtas,
-      "extra diurnas ",this.totalExtrasDiurnas,
-      "extra nocturnas ",this.totalExtrasNocturas,
-      "extra mixtas ",this.totalExtrasMixtras)
+    console.log("extra diurnas ",this.totalExtrasDiurnas, "extra nocturnas ",this.totalExtrasNocturas, "extra mixtas ",this.totalExtrasMixtras)
   }
   showModal(): void {
     this.modal.confirm({
