@@ -1,5 +1,6 @@
 import { Time } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { flush } from '@angular/core/testing';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -37,6 +38,7 @@ export class HorasComponent implements OnInit {
   //horarios de las jornadas
   diurnaI = moment(5, 'HH:mm a');
   diurnaO = moment(19, 'HH:mm a');
+  nocturnaIa = moment(18, 'HH:mm a');
   nocturnaI = moment(19, 'HH:mm a');
   nocturnaO = moment(5, 'HH:mm a');
   mixtaIa = moment(13, 'HH:mm a');
@@ -46,8 +48,10 @@ export class HorasComponent implements OnInit {
   mixtaOb = moment(21, 'HH:mm a');
   mixtaOc = moment(22, 'HH:mm a');
   reset = moment(24, 'HH:mm a');
-  //modal
-  isVisible = false;
+  //visibilidad de modals
+  isVisibleInvalidas = false;
+  isVisibleValidasIguales = false;
+  isVisibleLibres = false;
   //horas trabajadas x dia de la semana
   hours;
   hoursLunes;
@@ -57,19 +61,27 @@ export class HorasComponent implements OnInit {
   hoursViernes;
   hoursSabado;
   hoursDomingo;
-  //horas trabajadas
+  //total horas trabajadas x semana
   totalTrabNormales;
   totalTrabDiurnas;
   totalTrabNocturnas;
   totalTrabMixtas;
   totalExtrasDiurnas:number=0;
   totalExtrasNocturas:number=0;
-  totalExtrasMixtras:number=0;
+  totalExtrasMixtas:number=0;
   //precio por jornada
   precioNormales;
   precioDiurnas;
   precioNocturnas;
   precioMixtas;
+  //count de observacion
+  feriado:number=0
+  incapacidadpub:number=0
+  incapacidadpriv:number=0
+  septimo:number=0
+  vacacion:number=0
+  falta:number=0
+  abandono:number=0
 
   constructor(private fb: FormBuilder, private modal: NzModalService) {
     this.horasForm = this.fb.group({
@@ -108,6 +120,7 @@ export class HorasComponent implements OnInit {
     this.descriForm.get('viernesSelect').setValue('');
     this.descriForm.get('sabadoSelect').setValue('');
     this.descriForm.get('domingoSelect').setValue('');
+    this.resetObservacion()
   }
   cancelar() {
     this.limpiar();
@@ -120,6 +133,342 @@ export class HorasComponent implements OnInit {
       diferencia = moment.duration(salida.diff(entrada));
       this.hours = diferencia.asHours();
     }
+  }
+  invalidas(): void {
+    this.isVisibleInvalidas = true;
+    this.modal.error({
+      nzTitle: 'ERROR',
+      nzContent: 'Horas inválidas. Reingrese.',
+    });
+  }
+  validasIguales(): void {
+    this.isVisibleValidasIguales = true;
+    this.modal.error({
+      nzTitle: 'ERROR',
+      nzContent: 'Horas de entrada y salida son iguales. Reingrese.',
+    });
+  }
+  libres(): void {
+    this.isVisibleLibres = true;
+    this.modal.warning({
+      nzTitle: 'ATENCION',
+      nzContent: 'Solo puede tener un septimo día a la semana'
+    });
+  }
+  revisarLunes(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('luIControl').setValue("");
+        this.horasForm.get('luOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursLunes = this.hours;
+        console.log('Lunes: ' + this.hoursLunes);
+        this.horas(entrada, salida, this.hoursLunes);
+      } 
+    } else if (this.descriForm.get('lunesSelect').value !=""){
+      if(this.descriForm.get('lunesSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('lunesSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('lunesSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('lunesSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('lunesSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('lunesSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('lunesSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('luIControl').setValue("");
+      this.horasForm.get('luOControl').setValue("");
+    } 
+  }
+  revisarMartes(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('maIControl').setValue("");
+        this.horasForm.get('maOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursMartes = this.hours;
+        console.log('Martes: ' + this.hoursMartes);
+        this.horas(entrada, salida, this.hoursMartes);
+      } 
+    } else if (this.descriForm.get('martesSelect').value !=""){
+      if(this.descriForm.get('martesSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('martesSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('martesSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('martesSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('martesSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('martesSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('martesSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('maIControl').setValue("");
+      this.horasForm.get('maOControl').setValue("");
+    } 
+  }
+  revisarMiercoles(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('miIControl').setValue("");
+        this.horasForm.get('miOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursMiercoles = this.hours;
+        console.log('Miercoles: ' + this.hoursMiercoles);
+        this.horas(entrada, salida, this.hoursMiercoles);
+      } 
+    } else if (this.descriForm.get('miercolesSelect').value !=""){
+      if(this.descriForm.get('miercolesSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('miercolesSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('miercolesSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('miercolesSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('miercolesSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('miercolesSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('miercolesSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('miIControl').setValue("");
+      this.horasForm.get('miOControl').setValue("");
+    } 
+  }
+  revisarJueves(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('juIControl').setValue("");
+        this.horasForm.get('juOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursJueves = this.hours;
+        console.log('Jueves: ' + this.hoursJueves);
+        this.horas(entrada, salida, this.hoursJueves);
+      } 
+    } else if (this.descriForm.get('juevesSelect').value !=""){
+      if(this.descriForm.get('juevesSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('juevesSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('juevesSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('juevesSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('juevesSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('juevesSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('juevesSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('juIControl').setValue("");
+      this.horasForm.get('juOControl').setValue("");
+    } 
+  }
+  revisarViernes(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('viIControl').setValue("");
+        this.horasForm.get('viOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursViernes = this.hours;
+        console.log('Viernes: ' + this.hoursViernes);
+        this.horas(entrada, salida, this.hoursViernes);
+      } 
+    } else if (this.descriForm.get('viernesSelect').value !=""){
+      if(this.descriForm.get('viernesSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('viernesSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('viernesSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('viernesSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('viernesSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('viernesSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('viernesSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('viIControl').setValue("");
+      this.horasForm.get('viOControl').setValue("");
+    } 
+  }
+  revisarSabado(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('saIControl').setValue("");
+        this.horasForm.get('saOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursSabado = this.hours;
+        console.log('Sabado: ' + this.hoursSabado);
+        this.horas(entrada, salida, this.hoursSabado);
+      } 
+    } else if (this.descriForm.get('sabadoSelect').value !=""){
+      if(this.descriForm.get('sabadoSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('sabadoSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('sabadoSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('sabadoSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('sabadoSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('sabadoSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('sabadoSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('saIControl').setValue("");
+      this.horasForm.get('saOControl').setValue("");
+    } 
+  }
+  revisarDomingo(entrada:moment.Moment, salida:moment.Moment){
+    if (entrada.isValid() && salida.isValid()) {
+      if (entrada.isSame(salida)) {
+        if(this.isVisibleValidasIguales==false){
+          this.validasIguales()
+        }else{
+          this.isVisibleValidasIguales=false
+        }
+        this.horasForm.get('doIControl').setValue("");
+        this.horasForm.get('doOControl').setValue("");
+      } else {
+        this.horasSemana(entrada, salida);
+        this.hoursDomingo = this.hours;
+        console.log('Domingo: ' + this.hoursDomingo);
+        this.horas(entrada, salida, this.hoursDomingo);
+      } 
+    } else if (this.descriForm.get('domingoSelect').value !=""){
+      if(this.descriForm.get('domingoSelect').value =="feriado"){
+        this.feriado=this.feriado+1
+      } else if(this.descriForm.get('domingoSelect').value =="incapacidadpub"){
+        this.incapacidadpub=this.incapacidadpub+1
+      } else if(this.descriForm.get('domingoSelect').value =="incapacidadpriv"){
+        this.incapacidadpriv=this.incapacidadpriv+1
+      } else if(this.descriForm.get('domingoSelect').value =="septimo"){
+        this.septimo=this.septimo+1
+        if(this.isVisibleLibres==false){
+          if(this.septimo>1){
+            this.libres()
+          }
+        }
+      } else if(this.descriForm.get('domingoSelect').value =="vacacion"){
+        this.vacacion=this.vacacion+1
+      } else if(this.descriForm.get('domingoSelect').value =="falta"){
+        this.falta=this.falta+1
+      } else if(this.descriForm.get('domingoSelect').value =="abandono"){
+        this.abandono=this.abandono+1
+      }
+    } else {
+      if(this.isVisibleInvalidas==false){
+        this.invalidas();
+      }
+      this.horasForm.get('doIControl').setValue("");
+      this.horasForm.get('doOControl').setValue("");
+    } 
   }
   calcular() {
     var lunesDesde = moment(this.luI, 'HH:mm a');
@@ -135,205 +484,133 @@ export class HorasComponent implements OnInit {
     var sabadoDesde = moment(this.saI, 'HH:mm a');
     var sabadoHasta = moment(this.saO, 'HH:mm a');
     var domingoDesde = moment(this.doI, 'HH:mm a');
-    var domingoHasta = moment(this.doO, 'HH:mm a');
-
-    this.horasSemana(lunesDesde, lunesHasta);
-    this.hoursLunes = this.hours;
-    console.log('Lunes: ' + this.hoursLunes);
-    this.horas(lunesDesde, lunesHasta, this.hoursLunes);
-
-    this.horasSemana(martesDesde, martesHasta);
-    this.hoursMartes = this.hours;
-    console.log('Martes: ' + this.hoursMartes);
-    this.horas(martesDesde, martesHasta, this.hoursMartes);
-
-    this.horasSemana(miercolesDesde, miercolesHasta);
-    this.hoursMiercoles = this.hours;
-    console.log('Miercoles: ' + this.hoursMiercoles);
-    this.horas(miercolesDesde, miercolesHasta, this.hoursMiercoles);
-
-    this.horasSemana(juevesDesde, juevesHasta);
-    this.hoursJueves = this.hours;
-    console.log('Jueves: ' + this.hoursJueves);
-    this.horas(juevesDesde, juevesHasta, this.hoursJueves);
-
-    this.horasSemana(viernesDesde, viernesHasta);
-    this.hoursViernes = this.hours;
-    console.log('Viernes: ' + this.hoursViernes);
-    this.horas(viernesDesde, viernesHasta, this.hoursViernes);
-
-    this.horasSemana(sabadoDesde, sabadoHasta);
-    this.hoursSabado = this.hours;
-    console.log('Sabado: ' + this.hoursSabado);
-    this.horas(sabadoDesde, sabadoHasta, this.hoursSabado);
-
-    this.horasSemana(domingoDesde, domingoHasta);
-    this.hoursDomingo = this.hours;
-    console.log('Domingo: ' + this.hoursDomingo);
-    this.horas(domingoDesde, domingoHasta, this.hoursDomingo);
+    var domingoHasta = moment(this.doO, 'HH:mm a');    
+    this.revisarLunes(lunesDesde,lunesHasta)
+    this.revisarMartes(martesDesde,martesHasta)
+    this.revisarMiercoles(miercolesDesde,miercolesHasta)
+    this.revisarJueves(juevesDesde,juevesHasta)
+    this.revisarViernes(viernesDesde,viernesHasta)
+    this.revisarSabado(sabadoDesde,sabadoHasta)
+    this.revisarDomingo(domingoDesde,domingoHasta)
+    this.isVisibleInvalidas=false
+    this.isVisibleValidasIguales=false
+    this.isVisibleLibres=false
+    this.resetObservacion()
+    console.log(this.feriado,this.incapacidadpriv,this.incapacidadpub,this.septimo,this.vacacion,this.falta,this.abandono);
   }
   horas(entrada: moment.Moment, salida: moment.Moment, horas: number) {
-    var a:number=0, b:number=0, exd:number=0, exn:number=0, exm:number=0, sum:number=0, faltante:number=0, 
-    hoursdif:number=0, jornada:number=0, hoursDiurna:number=0, hoursNocturna:number=0, completar:number=0;
-    
+    var a:number=0, b:number=0, exd:number=0, exn:number=0, exm:number=0,jornada:number=0
     if (entrada.isValid() && salida.isValid()) {
       if (entrada.isSame(salida)) {
         console.log('horas validas pero son iguales');
       } else {
         console.log('true');
-        //ciclo jornada diurna con extras diurnas
-        if (entrada >= this.diurnaI && entrada < this.diurnaO && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada ) {
+        //jornada diurna con extras diurnas
+        if (entrada >= this.diurnaI && entrada < this.diurnaO && salida <= this.diurnaO && salida > this.diurnaI && salida > entrada) {
           if (horas >= this.hrsJornadaDiurna) {
             exd = horas - this.hrsJornadaDiurna;
-            console.log('jornada diurna ' + ' extras diurnas ' + exd);
+            this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd
+            console.log('jornada diurna ' + 'extras diurnas ' + exd);
           } else if (horas < this.hrsJornadaDiurna) {
             console.log('jornada diurna no completo ' + horas);
           }
-          //ciclo jornada diurna con extras nocturnas y diurnas
-        } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && (salida > this.nocturnaI || salida <= this.diurnaO) && salida < entrada) {
+          //jornada nocturna extras nocturas
+        } else if((entrada >= this.nocturnaIa && entrada < this.reset) && (salida > this.nocturnaIa || salida <= this.mixtaIa)){
+          if (horas >= this.hrsJornadaNocturna) {
+            exn = horas - this.hrsJornadaNocturna;
+            this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+            console.log('jornada nocturna ' + 'extras nocturnas ' + exn);
+          } else if (horas < this.hrsJornadaNocturna) {
+            console.log('jornada nocturna no completo ' + horas);
+          }
+          //jornada diurna con extras mixtas y nocturnas
+        } else if ((entrada >= this.diurnaI && entrada < this.mixtaIa) && (salida > this.nocturnaI || salida <= this.reset)) {
           a = moment.duration(this.diurnaO.diff(entrada)).asHours();
           b = moment.duration(salida.diff(this.diurnaI)).asHours();
-          if (b > 0) {
-            sum = a + b;
-            if (sum >= this.hrsJornadaDiurna) {
-              exd = sum - this.hrsJornadaDiurna;
-              exn = horas - sum;
-              console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
-            } else {
-              exn = horas - sum - this.hrsJornadaNocturna;
-              console.log('jornada nocturna ' + horas + ' extras diurnas ' + sum + ' extras nocturnas ' + exn);
-            }
-          } else {
-            if (a >= this.hrsJornadaDiurna) {
-              exd = a - this.hrsJornadaDiurna;
-              exn = horas - a;
-              console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
-            } else {
-              //arreglar 1pm-2am
-              faltante = horas - a; 
-              if (faltante >= this.hrsJornadaNocturna) {
-                exn = horas - a - this.hrsJornadaNocturna;
-                console.log('jornada nocturna ' + horas + ' extras diurnas ' + a + ' extras nocturnas ' + exn);
-              } else if (faltante < this.hrsJornadaNocturna) {
-                exd = horas - this.hrsJornadaNocturna;
-                console.log('jornada nocturna ' + horas + ' extras diurnas ' + exd);
-              }
-            }
-          }//arreglar ciclo 6pm-11pm
-         } else if (entrada >= this.diurnaI && entrada <= this.diurnaO && salida > this.nocturnaI && salida <= this.reset) {
-          a = moment.duration(this.diurnaO.diff(entrada)).asHours();
-          b = moment.duration(salida.diff(this.diurnaO)).asHours();
           if (a >= this.hrsJornadaDiurna) {
             if (salida > this.nocturnaI && salida <= this.mixtaOc) {
               exd = a - this.hrsJornadaDiurna;
               exm = moment.duration(salida.diff(this.diurnaO)).asHours();
+              this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd
+              this.totalExtrasMixtas=this.totalExtrasMixtas+exm;
               console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras mixtas ' + exm);
-            } else if (salida > this.mixtaOc && salida <= this.reset) {
-              exd = a - this.hrsJornadaDiurna;
-              exn = moment.duration(salida.diff(this.nocturnaI)).asHours();
-              console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
+            } else if (salida > this.mixtaOc || salida <= this.reset) {
+                if(b>0){
+                  exd = a - this.hrsJornadaDiurna;
+                  exn = moment.duration(salida.diff(this.nocturnaI)).asHours();
+                  this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd
+                  this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+                  console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
+                } else {
+                  exd = a - this.hrsJornadaDiurna;
+                  exn = moment.duration(salida.diff(this.nocturnaI)).asHours()+24;
+                  this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd
+                  this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+                  console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
+                }
             }
           } else if (a < this.hrsJornadaDiurna) {
             if (salida > this.nocturnaI && salida <= this.mixtaOc) {
               exm = horas - this.hrsJornadaDiurna;
+              this.totalExtrasMixtas=this.totalExtrasMixtas+exm;
               console.log('jornada diurna ' + horas + ' extras mixtas ' + exm);
             } else if (salida > this.mixtaOc && salida <= this.reset) {
               exn = horas - this.hrsJornadaNocturna;
+              this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
               console.log('jornada nocturna ' + horas + ' extras nocturnas ' + exn);
             }
           }
-        } else if ((entrada >= this.nocturnaI || entrada < this.nocturnaO) && (salida <= this.diurnaI || salida >= this.diurnaO)) {
-          if (horas > 10) {
-            if (salida >= this.diurnaO && salida <= this.mixtaOc) {
-              exd = 6;
-              exn = moment.duration(this.diurnaI.diff(entrada)).asHours();
-              exm = moment.duration(salida.diff(this.diurnaO)).asHours();
-              console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn + ' extras mixtas ' + exm);
-            } else if (salida > this.mixtaOc && salida < this.reset) {
-              exd = 6;
-              a = moment.duration(this.diurnaI.diff(entrada)).asHours();
-              b = moment.duration(salida.diff(this.nocturnaI)).asHours();
-              exn = a + b;
-              console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extras nocturnas ' + exn);
-            }
-          } else if (horas >= this.hrsJornadaNocturna && horas < 10) {
-            exn = horas - this.hrsJornadaNocturna;
-            console.log('jornada nocturna ' + ' extras nocturnas ' + exn);
-          } else {
-            console.log('jornada nocturna no completo ' + horas);
-          }
+          //jornada mixta extras mixtas y nocturnas
         } else if (entrada >= this.mixtaIa && entrada <= this.mixtaIc && (salida <= this.diurnaI || salida >= this.diurnaO)) {
           if (salida > this.mixtaOc || salida <= this.diurnaI) {
             jornada = moment.duration(this.mixtaOc.diff(entrada)).asHours();
             exm = jornada - this.hrsJornadaMixta;
-            hoursdif = moment.duration(salida.diff(this.mixtaOc)).asHours();
-            if (hoursdif < 0) {
-              hoursdif = hoursdif + 24;
-              console.log('jornada mixta ' + ' extras mixtas ' + exm + ' extra nocturna ' + hoursdif);
+            exn = moment.duration(salida.diff(this.mixtaOc)).asHours();
+            if (exn < 0) {
+              exn = exn + 24;
+              this.totalExtrasMixtas=this.totalExtrasMixtas+exm;
+              this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+              console.log('jornada mixta ' + 'extras mixtas ' + exm + ' extra nocturna ' + exn);
             } else {
-              console.log('jornada mixta ' + ' extras mixtas ' + exm + ' extra nocturna ' + hoursdif);
+              this.totalExtrasMixtas=this.totalExtrasMixtas+exm;
+              this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
+              console.log('jornada mixta ' + 'extras mixtas ' + exm + ' extra nocturna ' + exn);
             }
           } else if (salida > this.diurnaO && salida <= this.mixtaOc) {
             if (horas >= this.hrsJornadaMixta) {
               exm = horas - this.hrsJornadaMixta;
+              this.totalExtrasMixtas=this.totalExtrasMixtas+exm;
+              this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
               console.log('jornada mixta ' + 'extras mixtas ' + exm);
             } else {
               console.log('jornada diurna no completo ' + horas);
             }
           }
-        } else if (entrada >= this.nocturnaI || (entrada <= this.diurnaI && salida <= this.nocturnaI)) {
-          hoursDiurna = moment.duration(salida.diff(this.diurnaI)).asHours();
-          hoursNocturna = horas - hoursDiurna;
-          if (hoursDiurna > hoursNocturna) {
-            if (horas < this.hrsJornadaDiurna) {
-              console.log('jornada diurna no completo ' + horas);
-            } else if (horas >= this.hrsJornadaDiurna) {
-              if (hoursDiurna > this.hrsJornadaDiurna) {
-                exd = hoursDiurna - this.hrsJornadaDiurna;
-                console.log('jornada diurna ' + horas + ' extras diurnas ' + exd + ' extra nocturna ' + hoursNocturna);
-              } else if (hoursDiurna < this.hrsJornadaDiurna) {
-                completar = this.hrsJornadaDiurna - hoursDiurna;
-                exn = hoursNocturna - completar;
-                console.log('jornada diurna ' + horas + ' extra nocturna ' + exn);
-              } else if (hoursDiurna == this.hrsJornadaDiurna) {
-                console.log('jornada diurna ' + horas + ' extra nocturna ' + hoursNocturna);
-              }
-            }
-          } else {
-            console.log(hoursDiurna, hoursNocturna);
-            if (horas < this.hrsJornadaNocturna) {
-              console.log('jornada nocturna no completo ' + horas);
-            } else if (horas >= this.hrsJornadaNocturna) {
-              if (hoursNocturna > this.hrsJornadaNocturna) {
-                exn = hoursNocturna - this.hrsJornadaNocturna;
-                console.log('jornada nocturna ' + horas + ' extras nocturna ' + exn + ' extra diurna ' + hoursDiurna);
-              } else if (hoursNocturna < this.hrsJornadaNocturna) {
-                completar = this.hrsJornadaNocturna - hoursNocturna;
-                exd = hoursDiurna - completar;
-                console.log('jornada nocturna ' + horas + ' extra diurnas ' + exd);
-              } else if (hoursNocturna == this.hrsJornadaNocturna) {
-                console.log('jornada nocturna ' + horas + ' extra diurna ' + hoursDiurna);
-              }
-            }
-          }
         }
-      }
+      } 
     } else {
       console.log('horas invalidas');
-    }
-    if(exd<0){
-      exd=0
-    }
-    if(exm<0){
-      exm=0
-    }
-    if(exn<0){
-      exn=0
-    }
-    this.totalExtrasDiurnas=this.totalExtrasDiurnas+exd;
-    this.totalExtrasNocturas=this.totalExtrasNocturas+exn;
-    this.totalExtrasMixtras=this.totalExtrasMixtras+exm;
-    console.log("extra diurnas ",this.totalExtrasDiurnas, "extra nocturnas ",this.totalExtrasNocturas, "extra mixtas ",this.totalExtrasMixtras)
+  }  
+  
+  var horasExtras=this.totalExtrasDiurnas+this.totalExtrasMixtas+this.totalExtrasNocturas
+  var valorCompletar=this.incapacidadpriv
+  var hrstrab
+  var prom=hrstrab/44*48
+  
+  
+  // console.log(
+  // "extra diurnas ",this.totalExtrasDiurnas, 
+  // "extra nocturnas ",this.totalExtrasNocturas, 
+  // "extra mixtas ",this.totalExtrasMixtas)
+}
+  resetObservacion(){
+    this.feriado=0
+    this.incapacidadpub=0
+    this.incapacidadpriv=0
+    this.septimo=0
+    this.vacacion=0
+    this.falta=0
+    this.abandono=0
   }
   showModal(): void {
     this.modal.confirm({
@@ -347,14 +624,6 @@ export class HorasComponent implements OnInit {
       nzCancelText: 'No',
       nzOnCancel: () => console.log('Cancel'),
     });
-  }
-  handleOk(): void {
-    console.log('Button ok clicked!');
-    this.isVisible = false;
-  }
-  handleCancel(): void {
-    console.log('Button cancel clicked!');
-    this.isVisible = false;
   }
   horasLuI(value: Time): void {
     this.luI = value;
@@ -417,10 +686,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('lunesSelect').value == value && value != '') {
       this.horasForm.get('luIControl').disable();
       this.horasForm.get('luOControl').disable();
-      this.horasForm.get('luIControl').setValue(0);
-      this.horasForm.get('luOControl').setValue(0);
+      this.horasForm.get('luIControl').setValue("");
+      this.horasForm.get('luOControl').setValue("");
       console.log(this.luI, this.luO);
     } else {
+      this.horasForm.get('luIControl').setValue("");
+      this.horasForm.get('luOControl').setValue("");
       this.horasForm.get('luIControl').enable();
       this.horasForm.get('luOControl').enable();
     }
@@ -430,10 +701,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('martesSelect').value == value && value != '') {
       this.horasForm.get('maIControl').disable();
       this.horasForm.get('maOControl').disable();
-      this.horasForm.get('maIControl').setValue(0);
-      this.horasForm.get('maOControl').setValue(0);
+      this.horasForm.get('maIControl').setValue("");
+      this.horasForm.get('maOControl').setValue("");
       console.log(this.maI, this.maO);
     } else {
+      this.horasForm.get('maIControl').setValue("");
+      this.horasForm.get('maOControl').setValue("");
       this.horasForm.get('maIControl').enable();
       this.horasForm.get('maOControl').enable();
     }
@@ -443,10 +716,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('miercolesSelect').value == value && value != '') {
       this.horasForm.get('miIControl').disable();
       this.horasForm.get('miOControl').disable();
-      this.horasForm.get('miIControl').setValue(0);
-      this.horasForm.get('miOControl').setValue(0);
+      this.horasForm.get('miIControl').setValue("");
+      this.horasForm.get('miOControl').setValue("");
       console.log(this.miI, this.miO);
     } else {
+      this.horasForm.get('miIControl').setValue("");
+      this.horasForm.get('miOControl').setValue("");
       this.horasForm.get('miIControl').enable();
       this.horasForm.get('miOControl').enable();
     }
@@ -456,10 +731,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('juevesSelect').value == value && value != '') {
       this.horasForm.get('juIControl').disable();
       this.horasForm.get('juOControl').disable();
-      this.horasForm.get('juIControl').setValue(0);
-      this.horasForm.get('juOControl').setValue(0);
+      this.horasForm.get('juIControl').setValue("");
+      this.horasForm.get('juOControl').setValue("");
       console.log(this.juI, this.juO);
     } else {
+      this.horasForm.get('juIControl').setValue("");
+      this.horasForm.get('juIControl').setValue("");
       this.horasForm.get('juIControl').enable();
       this.horasForm.get('juOControl').enable();
     }
@@ -469,10 +746,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('viernesSelect').value == value && value != '') {
       this.horasForm.get('viIControl').disable();
       this.horasForm.get('viOControl').disable();
-      this.horasForm.get('viIControl').setValue(0);
-      this.horasForm.get('viOControl').setValue(0);
+      this.horasForm.get('viIControl').setValue("");
+      this.horasForm.get('viOControl').setValue("");
       console.log(this.viI, this.viO);
     } else {
+      this.horasForm.get('viIControl').setValue("");
+      this.horasForm.get('viOControl').setValue("");
       this.horasForm.get('viIControl').enable();
       this.horasForm.get('viOControl').enable();
     }
@@ -482,10 +761,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('sabadoSelect').value == value && value != '') {
       this.horasForm.get('saIControl').disable();
       this.horasForm.get('saOControl').disable();
-      this.horasForm.get('saIControl').setValue(0);
-      this.horasForm.get('saOControl').setValue(0);
+      this.horasForm.get('saIControl').setValue("");
+      this.horasForm.get('saOControl').setValue("");
       console.log(this.saI, this.saO);
     } else {
+      this.horasForm.get('saIControl').setValue("");
+      this.horasForm.get('saOControl').setValue("");
       this.horasForm.get('saIControl').enable();
       this.horasForm.get('saOControl').enable();
     }
@@ -495,10 +776,12 @@ export class HorasComponent implements OnInit {
     if (this.descriForm.get('domingoSelect').value == value && value != '') {
       this.horasForm.get('doIControl').disable();
       this.horasForm.get('doOControl').disable();
-      this.horasForm.get('doIControl').setValue(0);
-      this.horasForm.get('doOControl').setValue(0);
+      this.horasForm.get('doIControl').setValue("");
+      this.horasForm.get('doOControl').setValue("");
       console.log(this.doI, this.doO);
     } else {
+      this.horasForm.get('doIControl').setValue("");
+      this.horasForm.get('doOControl').setValue("");
       this.horasForm.get('doIControl').enable();
       this.horasForm.get('doOControl').enable();
     }
