@@ -1,6 +1,8 @@
 td {
-  padding-top: 5%;
+  padding-top: 1%;
+  padding-bottom: 2%;
   padding-left: 15px;
+  padding-right: 15px;
 }
 input[type="time"]::-webkit-calendar-picker-indicator {
   display: none;
@@ -17,4 +19,10 @@ optgroup[label] {
   font-style: inherit;
   font-weight: 300;
   text-shadow: none;
+}
+#main_content {
+  position: relative;
+  max-width: 100%;
+  white-space: nowrap;
+  align-items: center;
 }
